@@ -5,9 +5,16 @@ sub = defaultdict(set)
 
 
 def insert_to_dict(sentence):
-    for i in range(len(sentence)):
+    length = len(sentence)
+    for i in range(length):
         sub[sentence[:i+1]].add(all_sentences.index(sentence))
         sub[sentence[i:]].add(all_sentences.index(sentence))
+    for i in range(length):
+        for j in range(length):
+            if(j > length-i):
+                break
+            sub[sentence[j:length-i]].add(all_sentences.index(sentence))
+
 
 
 def get_common_sentences(sentences_indexes):
