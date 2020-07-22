@@ -24,9 +24,11 @@ def get_common_sentences(score):
 
     sorted_dict = collections.OrderedDict(sorted(score.items(), reverse=True))
     five_common_sentences = []
-    while len(five_common_sentences) < 5:
-        for key in sorted_dict.keys():
-             five_common_sentences.append(sorted_dict[key].pop())
+    for key in sorted_dict.keys():
+        while sorted_dict[key] and len(five_common_sentences) < 5:
+            index = sorted_dict[key].pop()
+            if index not in five_common_sentences:
+                five_common_sentences.append(index)
 
     return five_common_sentences
 
@@ -74,7 +76,7 @@ def get_score(sub_string):
 def get_best_k_completions(sub_string):
 
     indexes = get_common_sentences(get_score(sub_string))
-    
+
     return indexes
 
 
