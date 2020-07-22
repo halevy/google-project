@@ -2,6 +2,7 @@ from collections import defaultdict
 from auto_complete_data import AutoCompleteData
 from read_file import all_sentences
 import string
+import collections
 
 subs = defaultdict(set)
 
@@ -19,26 +20,32 @@ def insert_to_dict(sentence):
 
 
 
-def get_common_sentences(sentences_indexes):
-    if len(sentences_indexes) <= 5:
-        return list(sentences_indexes)
-    return list(sentences_indexes)[:5]
+def get_common_sentences(score):
+
+    sorted_dict = collections.OrderedDict(sorted(score.items(), reverse=True))
+    five_common_sentences = []
+    while len(five_common_sentences) < 5:
+        for key in sorted_dict.keys():
+             five_common_sentences.append(sorted_dict[key].pop())
+
+    return five_common_sentences
 
 def get_score(sub_string):
     basis_score = len(sub_string) * 2
     score = defaultdict(set)
-    indexes = subs.get(sub_string)
+    indexes = subs[sub_string]
     if indexes:
         score[basis_score] = indexes
-        if indexes >= 5:
+        if len(indexes) >= 5:
             return score
 
     for i in range(len(sub_string)):
-        indexes = subs.get(sub_string.replace(sub_string[i], ""))
-        if i < 4:
-            score[basis_score - (10-i*2)] = indexes
-        else:
-            score[basis_score - 2] = indexes
+        indexes = subs.get(sub_string.replace(sub_string[i], "", 1))
+        if indexes:
+            if i < 4:
+                score[basis_score - (10-i*2)] = indexes
+            else:
+                score[basis_score - 2] = indexes
 
 
     all_alphabet = string.ascii_lowercase
@@ -54,7 +61,7 @@ def get_score(sub_string):
     all_alphabet = string.ascii_lowercase
     for i in range(len(sub_string)):
         for letter in all_alphabet:
-            indexes = subs.get(sub_string.replace(sub_string[i],letter))
+            indexes = subs.get(sub_string.replace(sub_string[i], letter, 1))
             if indexes:
                 if i < 5:
                     score[basis_score - (5-i)] = indexes
@@ -66,22 +73,17 @@ def get_score(sub_string):
 
 def get_best_k_completions(sub_string):
 
-    indexes = get_common_sentences(subs[sub_string])
-    auto_complete_list = []
-    for index in indexes:
-        completed_sentence = all_sentences[index][0]
-        source_text = all_sentences[index][1]
-        offset = all_sentences[index][0].index(sub_string)
-        score = get_score(sub_string)
-        auto_complete_list.append(AutoCompleteData(completed_sentence, source_text, offset, score))
-    return auto_complete_list
+    indexes = get_common_sentences(get_score(sub_string))
+    
+    return indexes
 
 
 def five_auto_complete():
     string = input("Enter your text:")
     auto_complete_data = get_best_k_completions(string)
-    for item in auto_complete_data:
-        print(item.completed_sentence)
+    if auto_complete_data:
+        for index in auto_complete_data:
+            print(all_sentences[index])
 
 
 for sentence in all_sentences:
