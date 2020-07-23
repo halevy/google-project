@@ -4,11 +4,10 @@ from read_file import all_sentences
 import string
 import collections
 
-
 subs = defaultdict(set)
 
-
 def insert_to_dict():
+
     for i in range(len(all_sentences)):
         my_sentence = all_sentences[i].completed_sentence
         sentence = valid_string(my_sentence)
@@ -23,11 +22,11 @@ def insert_to_dict():
                     break
                 if sentence[j] != ' ' and sentence[length-k-1] != ' ':
                     subs[sentence[j:length - k]].add(i)
-                if i == 0:
-                    print(sentence[j:length - k])
+
 
 
 def valid_string(string):
+
     i = 0
     while i < len(string):
         if not (string[i].isalpha() or string[i].isdigit()):
@@ -55,14 +54,7 @@ def get_common_sentences(score):
 
     return five_common_sentences
 
-def get_score(sub_string):
-    basis_score = len(sub_string) * 2
-    score = defaultdict(set)
-    indexes = subs[sub_string]
-    if indexes:
-        score[basis_score] = indexes
-        if len(indexes) >= 5:
-            return score
+def delete_leeter(sub_string, basis_score, score):
 
     for i in range(len(sub_string)):
         indexes = subs.get(sub_string.replace(sub_string[i], "", 1))
@@ -71,17 +63,22 @@ def get_score(sub_string):
                 score[basis_score - (10-i*2)] = indexes
             else:
                 score[basis_score - 2] = indexes
+    return score
 
+def add_letter(sub_string, basis_score, score):
 
     all_alphabet = string.ascii_lowercase
     for i in range(len(sub_string)):
         for letter in all_alphabet:
-            indexes = subs.get(sub_string[:i]+letter+sub_string[i:])
+            indexes = subs.get(sub_string[:i] + letter + sub_string[i:])
             if indexes:
                 if i < 4:
-                    score[basis_score - (10-i*2)] = indexes
+                    score[basis_score - (10 - i * 2)] = indexes
                 else:
                     score[basis_score - 2] = indexes
+    return score
+
+def replace_letter(sub_string, basis_score, score):
 
     all_alphabet = string.ascii_lowercase
     for i in range(len(sub_string)):
@@ -89,11 +86,25 @@ def get_score(sub_string):
             indexes = subs.get(sub_string.replace(sub_string[i], letter, 1))
             if indexes:
                 if i < 5:
-                    score[basis_score - (5-i)] = indexes
+                    score[basis_score - (5 - i)] = indexes
                 else:
                     score[basis_score - 1] = indexes
     return score
 
+def get_score(sub_string):
+
+    basis_score = len(sub_string) * 2
+    score = defaultdict(set)
+    indexes = subs[sub_string]
+    if indexes:
+        score[basis_score] = indexes
+        if len(indexes) >= 5:
+            return score
+
+    score = delete_leeter(sub_string, basis_score, score)
+    score = add_letter(sub_string, basis_score, score)
+    score = replace_letter(sub_string, basis_score, score)
+    return score
 
 
 def get_best_k_completions(sub_string):
@@ -106,15 +117,24 @@ def get_best_k_completions(sub_string):
 
 
 def five_auto_complete():
+
     while True:
         my_string = input("Enter your text:")
-        if my_string == '#':
+        if my_string == "stop":
             break
-        auto_complete_data = get_best_k_completions(valid_string(my_string))
-        if auto_complete_data:
-            for i in range(len(auto_complete_data)):
-                print(f"{i+1}.{auto_complete_data[i].completed_sentence}")
-                print(auto_complete_data[i].source_text)
+        string = ""
+        while True:
+            my_string += string
+            auto_complete_data = get_best_k_completions(valid_string(my_string))
+            if auto_complete_data:
+                length = len(auto_complete_data)
+                print(f"Here are {length} suggestions")
+                for i in range(length):
+                    print(f"{i+1}.{auto_complete_data[i].completed_sentence}, path = {auto_complete_data[i].source_text}")
+            string = input(my_string)
+            if string == '#':
+                break
+
 
 
 insert_to_dict()
