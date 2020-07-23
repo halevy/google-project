@@ -14,13 +14,17 @@ def insert_to_dict():
         sentence = valid_string(my_sentence)
         length = len(sentence)
         for j in range(length):
-            subs[sentence[:j + 1]].add(i)
-            subs[sentence[j:]].add(i)
+            if sentence[j] != ' ':
+                subs[sentence[:j + 1]].add(i)
+                subs[sentence[j:]].add(i)
         for k in range(length):
             for j in range(length):
-                if(j > length-i):
+                if(j > length-k):
                     break
-                subs[sentence[j:length - k]].add(i)
+                if sentence[j] != ' ' and sentence[length-k-1] != ' ':
+                    subs[sentence[j:length - k]].add(i)
+                if i == 0:
+                    print(sentence[j:length - k])
 
 
 def valid_string(string):
@@ -34,6 +38,7 @@ def valid_string(string):
             else:
                 string = string.replace(string[i], "", 1)
         i += 1
+
     return string.lower()
 
 
@@ -101,14 +106,16 @@ def get_best_k_completions(sub_string):
 
 
 def five_auto_complete():
-    my_string = input("Enter your text:")
-    auto_complete_data = get_best_k_completions(valid_string(my_string))
-    if auto_complete_data:
-        for item in auto_complete_data:
-            print(item.completed_sentence)
-            print(item.source_text)
+    while True:
+        my_string = input("Enter your text:")
+        if my_string == '#':
+            break
+        auto_complete_data = get_best_k_completions(valid_string(my_string))
+        if auto_complete_data:
+            for i in range(len(auto_complete_data)):
+                print(f"{i+1}.{auto_complete_data[i].completed_sentence}")
+                print(auto_complete_data[i].source_text)
 
 
 insert_to_dict()
-for i in range(20):
-    five_auto_complete()
+five_auto_complete()
