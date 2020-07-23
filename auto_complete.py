@@ -7,27 +7,31 @@ import collections
 subs = defaultdict(set)
 
 
-def insert_to_dict(sentence):
-    length = len(sentence)
-    for i in range(length):
-        subs[sentence[:i + 1]].add(all_sentences.index(sentence))
-        subs[sentence[i:]].add(all_sentences.index(sentence))
-    for i in range(length):
+def insert_to_dict():
+    for i in range(len(all_sentences)):
+        sentence = all_sentences[i].completed_sentence
+        length = len(sentence)
         for j in range(length):
-            if(j > length-i):
-                break
-            subs[sentence[j:length - i]].add(all_sentences.index(sentence))
+            subs[sentence[:j + 1]].add(i)
+            subs[sentence[j:]].add(i)
+        for k in range(length):
+            for j in range(length):
+                if(j > length-i):
+                    break
+                subs[sentence[j:length - k]].add(i)
 
 
 
 def get_common_sentences(score):
 
     sorted_dict = collections.OrderedDict(sorted(score.items(), reverse=True))
+    print(sorted_dict)
     five_common_sentences = []
     for key in sorted_dict.keys():
         while sorted_dict[key] and len(five_common_sentences) < 5:
             index = sorted_dict[key].pop()
             if index not in five_common_sentences:
+                all_sentences[index].score = key
                 five_common_sentences.append(index)
 
     return five_common_sentences
@@ -76,19 +80,21 @@ def get_score(sub_string):
 def get_best_k_completions(sub_string):
 
     indexes = get_common_sentences(get_score(sub_string))
-
-    return indexes
+    auto_complete_data = []
+    for index in indexes:
+        auto_complete_data.append(all_sentences[index])
+    return auto_complete_data
 
 
 def five_auto_complete():
     string = input("Enter your text:")
     auto_complete_data = get_best_k_completions(string)
     if auto_complete_data:
-        for index in auto_complete_data:
-            print(all_sentences[index])
+        for item in auto_complete_data:
+            print(item.completed_sentence)
+            print(item.source_text)
 
 
-for sentence in all_sentences:
-    insert_to_dict(sentence)
+insert_to_dict()
 
 five_auto_complete()
