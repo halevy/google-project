@@ -4,12 +4,14 @@ from read_file import all_sentences
 import string
 import collections
 
+
 subs = defaultdict(set)
 
 
 def insert_to_dict():
     for i in range(len(all_sentences)):
-        sentence = all_sentences[i].completed_sentence
+        my_sentence = all_sentences[i].completed_sentence
+        sentence = valid_string(my_sentence)
         length = len(sentence)
         for j in range(length):
             subs[sentence[:j + 1]].add(i)
@@ -21,11 +23,23 @@ def insert_to_dict():
                 subs[sentence[j:length - k]].add(i)
 
 
+def valid_string(string):
+    i = 0
+    while i < len(string):
+        if not (string[i].isalpha() or string[i].isdigit()):
+            if string[i] == ' ':
+                i += 1
+                while i < len(string) and string[i] == ' ':
+                    string = string.replace(string[i], "", 1)
+            else:
+                string = string.replace(string[i], "", 1)
+        i += 1
+    return string.lower()
+
 
 def get_common_sentences(score):
 
     sorted_dict = collections.OrderedDict(sorted(score.items(), reverse=True))
-    print(sorted_dict)
     five_common_sentences = []
     for key in sorted_dict.keys():
         while sorted_dict[key] and len(five_common_sentences) < 5:
@@ -87,8 +101,8 @@ def get_best_k_completions(sub_string):
 
 
 def five_auto_complete():
-    string = input("Enter your text:")
-    auto_complete_data = get_best_k_completions(string)
+    my_string = input("Enter your text:")
+    auto_complete_data = get_best_k_completions(valid_string(my_string))
     if auto_complete_data:
         for item in auto_complete_data:
             print(item.completed_sentence)
@@ -96,5 +110,5 @@ def five_auto_complete():
 
 
 insert_to_dict()
-
-five_auto_complete()
+for i in range(20):
+    five_auto_complete()
