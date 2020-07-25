@@ -3,6 +3,7 @@ from auto_complete_data import AutoCompleteData
 from read_file import all_sentences
 import string
 import collections
+import re
 
 subs = defaultdict(set)
 
@@ -16,6 +17,7 @@ def insert_to_dict():
             if sentence[j] != ' ':
                 subs[sentence[:j + 1]].add(i)
                 subs[sentence[j:]].add(i)
+
         for k in range(length):
             for j in range(length):
                 if(j > length-k):
@@ -24,21 +26,9 @@ def insert_to_dict():
                     subs[sentence[j:length - k]].add(i)
 
 
-
 def valid_string(string):
-
-    i = 0
-    while i < len(string):
-        if not (string[i].isalpha() or string[i].isdigit()):
-            if string[i] == ' ':
-                i += 1
-                while i < len(string) and string[i] == ' ':
-                    string = string.replace(string[i], "", 1)
-            else:
-                string = string.replace(string[i], "", 1)
-        i += 1
-
-    return string.lower()
+    string = re.sub(" +", " ", string.lower())
+    return re.sub(r'[^a-z0-9 ]', '', string)
 
 
 def get_common_sentences(score):
@@ -54,15 +44,15 @@ def get_common_sentences(score):
 
     return five_common_sentences
 
-def delete_leeter(sub_string, basis_score, score):
+def delete_letter(sub_string, basis_score, score):
 
     for i in range(len(sub_string)):
         indexes = subs.get(sub_string.replace(sub_string[i], "", 1))
         if indexes:
             if i < 4:
-                score[basis_score - (10-i*2)] = indexes
+                score[basis_score - (10-i*2)].update(indexes)
             else:
-                score[basis_score - 2] = indexes
+                score[basis_score - 2].update(indexes)
     return score
 
 def add_letter(sub_string, basis_score, score):
@@ -73,9 +63,9 @@ def add_letter(sub_string, basis_score, score):
             indexes = subs.get(sub_string[:i] + letter + sub_string[i:])
             if indexes:
                 if i < 4:
-                    score[basis_score - (10 - i * 2)] = indexes
+                    score[basis_score - (10 - i * 2)].update(indexes)
                 else:
-                    score[basis_score - 2] = indexes
+                    score[basis_score - 2].update(indexes)
     return score
 
 def replace_letter(sub_string, basis_score, score):
@@ -86,9 +76,9 @@ def replace_letter(sub_string, basis_score, score):
             indexes = subs.get(sub_string.replace(sub_string[i], letter, 1))
             if indexes:
                 if i < 5:
-                    score[basis_score - (5 - i)] = indexes
+                    score[basis_score - (5 - i)].update(indexes)
                 else:
-                    score[basis_score - 1] = indexes
+                    score[basis_score - 1].update(indexes)
     return score
 
 def get_score(sub_string):
@@ -101,7 +91,7 @@ def get_score(sub_string):
         if len(indexes) >= 5:
             return score
 
-    score = delete_leeter(sub_string, basis_score, score)
+    score = delete_letter(sub_string, basis_score, score)
     score = add_letter(sub_string, basis_score, score)
     score = replace_letter(sub_string, basis_score, score)
     return score
