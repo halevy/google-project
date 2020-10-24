@@ -1,6 +1,6 @@
 from collections import defaultdict
 from auto_complete_data import AutoCompleteData
-from read_file import all_sentences
+from read_files import all_sentences
 import string
 import collections
 import re
@@ -27,6 +27,7 @@ def insert_to_dict():
 
 
 def valid_string(string):
+
     string = re.sub(" +", " ", string.lower())
     return re.sub(r'[^a-z0-9 ]', '', string)
 
@@ -47,7 +48,7 @@ def get_common_sentences(score):
 def delete_letter(sub_string, basis_score, score):
 
     for i in range(len(sub_string)):
-        indexes = subs.get(sub_string.replace(sub_string[i], "", 1))
+        indexes = subs.get(sub_string[:i] + sub_string[i+1:])
         if indexes:
             if i < 4:
                 score[basis_score - (10-i*2)].update(indexes)
@@ -128,4 +129,4 @@ def five_auto_complete():
 
 
 insert_to_dict()
-five_auto_complete()
+#five_auto_complete()
