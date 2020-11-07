@@ -1,6 +1,5 @@
 from collections import defaultdict
-from auto_complete_data import AutoCompleteData
-from read_files import all_sentences
+from SRC.read_files import all_sentences
 import string
 import collections
 import re

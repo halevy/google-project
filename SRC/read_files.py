@@ -1,11 +1,11 @@
 
 import os
-from auto_complete_data import AutoCompleteData
+from SRC.auto_complete_data import AutoCompleteData
 all_sentences = []
 
 def read_txt_file():
 
-    for root, dirs, files in os.walk("./MyFiles/python-3.8.4-docs-text"):
+    for root, dirs, files in os.walk("../MyFiles/python-3.8.4-docs-text"):
         for file in files:
             if file.endswith(".txt"):
                 with open(os.path.join(root, file), encoding="utf8") as myfile:

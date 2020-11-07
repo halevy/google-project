@@ -1,5 +1,5 @@
 from tkinter import *
-from auto_complete import get_best_k_completions
+from SRC.auto_complete import get_best_k_completions
 
 root = Tk()
 root.geometry("380x350")
